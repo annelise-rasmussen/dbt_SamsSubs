@@ -1,5 +1,7 @@
 # Project #3 Instructions #
 ## Objective ##
+
+new change
 - In this assignment, students will practice their fundamental dimensional modeling skills and ELT by creating and populating a star schema for a given business process and relational database.
 del. 
 -HINT! The dbt exercise we completed in class will be EXTREMELY helpful as you complete the assignment. 
