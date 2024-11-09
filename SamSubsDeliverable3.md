@@ -47,7 +47,7 @@ del.
     - Authorization Method: `Username and Password`
     - Password: 
     - Click `Set up destination`
-- Once the connection test passes, it will pull up the new connection window
+TRA- Once the connection test passes, it will pull up the new connection window
     - Change schedule type to `Manual`
     - Under `Activate the streams you want to sync`, click the button next to each table.
     - Click Set up connection
@@ -188,13 +188,13 @@ from {{ source('subs_landing', 'Product')}}
 )}}
 
 select 
-    store_id as store_key,
-    store_id,
+    Store_ID as store_key,
+    Store_ID as store_id,
     Store_Address as street,
     Store_City as city,
     Store_State as state,
-    Store_Zip
-from {{ source('subs_landing', 'store')}}
+    Store_Zip as zip
+from {{ source('subs_landing', 'Store')}}
 
 ```
 
@@ -225,20 +225,24 @@ from {{ source('subs_landing', 'sandwich')}}
 {{ config(
     materialized = 'table',
     schema = 'dw_samssubs'
-)}}
+) }}
 
-select 
-    Order_Number as order_method_key,
-    Order_Number as order_id,
-    Order_Method as order_method_type
-from {{ source('subs_landing', 'orders')}}
+with order_method_mappings as (
+    select 1 as order_method_key, 'Phone' as order_method_type
+    union all
+    select 2 as order_method_key, 'Online' as order_method_type
+    union all
+    select 3 as order_method_key, 'In-Person' as order_method_type
+)
+
+select * from order_method_mappings
 
 ```
 
 - Save the file and build the model. Go to Snowflake to see the newly created table!
 
 #### fact purchase ####
-- Create a new file inside of the Sam's Subs directory called `fact_sales.sql`
+- Create a new file inside of the Sam's Subs directory called `fact_purchase.sql`
 - Populate the code that we will use in this file below: 
 ```
 {{ config(
@@ -252,6 +256,7 @@ select
     e.employee_key,
     s.store_key,
     d.date_key,
+    om.order_method_key
     ol. Order_Line_Price as unit_price,
     ol.Order_Line_ Qty as qty,
     (ol.Order_Line_ Qty * ol. Order_Line_Price) as dollars_sold
@@ -268,6 +273,8 @@ left join {{ ref('subs_dim_store') }} s
     on s.store_id = o.store_id
 left join  {{ ref('subs_dim_date') }} d
     on d.date_key = o.order_date
+left join  {{ ref('subs_dim_order_method}} om
+    on o.order_method = om.order_method_type
 
 ```
 
@@ -289,12 +296,10 @@ select
     e.employee_key,
     s.store_key,
     d.date_key,
-    ol.unit_price,
-    ol.quantity,
-    (ol.unit_price * ol.quantity) as dollars_sold
-from {{ source('subs_landing', 'order_line') }} ol
-inner join {{ source ('subs_landing', 'orders') }} o
-    on o.order_id = ol.order_id
+    qty,
+    unit_price,
+    qty * unit_price as inventory_cost
+from <inventory_data_table>
 left join {{ ref('subs_dim_product') }} p
     on ol.product_id = p.product_id
 left join {{ ref('subs_dim_store') }} s
