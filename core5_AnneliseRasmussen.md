@@ -1,10 +1,7 @@
 # Project #3 Instructions #
 ## Objective ##
 - In this assignment, students will practice their fundamental dimensional modeling skills and ELT by creating and populating a star schema for a given business process and relational database.
-- For context, Core #3, #4, and #5 all build upon each other. 
-     - Core #3: You created a draft dimensional model in LucidChart based on a given business process and transaction. 
-     - Core #4: You will populate your draft dimensional model (and act upon any feedback received) from a dataset provided to you via a file. 
-     - Core #5: You will Airbyte to pull in your group's relational database data from SQL Server and then use dbt to transform and populate our final dimensional model. 
+del. 
 -HINT! The dbt exercise we completed in class will be EXTREMELY helpful as you complete the assignment. 
 
 ## Background & Data ## 
@@ -308,27 +305,25 @@ left join {{ ref(subs_dim_bread) }} b
 version: 2
 
 models:
-  - name: oliver_dim_employee
-    description: "Oliver's Employee Dimension"
+  - name: subs_dim_employee
+    description: "Sam's Subs Employee Dimension"
     columns: 
       - name: employee_key
         description: "Dimension Surrogate Key"
         tests:
         - unique
         - not_null
-  - name: oliver_dim_customer
-    description: "Oliver's Customer Dimension"
-  - name: oliver_dim_date 
-    description: "Oliver's Date Dimension"
-  - name: oliver_dim_product
-    description: "Oliver's Product Dimension"
-  - name: oliver_dim_store
+  - name: subs_dim_customer
+    description: "Sam's Subs Customer Dimension"
+  - name: subs_dim_date 
+    description: "Sam's Subs Date Dimension"
+  - name: subs_dim_product
+    description: "Sam's Subs Product Dimension"
+  - name: subs_dim_store
     description: "Store Information Dimension"  
-  - name: fact_sales
-    description: "Oliver's Sales Fact"
-    columns: 
-      - name: dollars_sold
-        decription: "Quantity * Unit Price Per Line Item"
+  - name: fact_purchase
+    description: "Sam's Subs Sales Fact"
+    
 ```
 
 ## Create a semantic layer model (2 points of EC!)
