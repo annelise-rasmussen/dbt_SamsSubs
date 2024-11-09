@@ -202,17 +202,44 @@ from {{ source('subs_landing', 'Store')}}
 
   #### dim bread ####
 - Create a new file inside of the Sam's Subs directory called `subs_dim_bread.sql`
+- SQL code generated with ChatGPT
 - Populate the code that we will use in this file below:
 
 ```
 {{ config(
     materialized = 'table',
     schema = 'dw_samssubs'
-)}}
+) }}
 
-select 
-    s
-from {{ source('subs_landing', 'sandwich')}}
+with bread_types as (
+
+    select distinct
+        Sandwich_Bread_Type
+    from {{ source('subs_landing', 'Sandwich') }}
+    where Sandwich_Bread_Type is not null
+
+),
+
+bread_type_keys as (
+
+    select
+        row_number() over (order by Sandwich_Bread_Type) as bread_type_key,  -- Surrogate key for each row
+        
+        -- Assigning logical keys to each bread type
+        case 
+            when Sandwich_Bread_Type = 'white' then 1
+            when Sandwich_Bread_Type = 'sourdough' then 2
+            when Sandwich_Bread_Type = 'lettuce wrap' then 3
+            when Sandwich_Bread_Type = 'wheat' then 4
+            else null
+        end as bread_id,
+
+        Sandwich_Bread_Type as bread_type
+    from bread_types
+
+)
+
+select * from bread_type_keys
 
 ```
 
@@ -220,6 +247,7 @@ from {{ source('subs_landing', 'sandwich')}}
 
 #### dim order_method ####
 - Create a new file inside of the Sam's Subs directory called `subs_dim_order_method.sql`
+- SQL generated with ChatGPT 
 - Populate the code that we will use in this file below: 
 ```
 {{ config(
@@ -228,11 +256,30 @@ from {{ source('subs_landing', 'sandwich')}}
 ) }}
 
 with order_method_mappings as (
-    select 1 as order_method_key, 'Phone' as order_method_type
-    union all
-    select 2 as order_method_key, 'Online' as order_method_type
-    union all
-    select 3 as order_method_key, 'In-Person' as order_method_type
+
+    select
+        -- Surrogate key generated using row_number()
+        row_number() over (order by order_method_type) as order_method_id,
+        
+        -- Logical key for each order method
+        case
+            when order_method_type = 'Phone' then 1
+            when order_method_type = 'Online' then 2
+            when order_method_type = 'In-Person' then 3
+            else null
+        end as order_method_key,
+        
+        order_method_type
+
+    from (
+        -- Define distinct order methods here
+        select 'Phone' as order_method_type
+        union all
+        select 'Online'
+        union all
+        select 'In-Person'
+    ) as base_order_methods
+
 )
 
 select * from order_method_mappings
@@ -243,6 +290,7 @@ select * from order_method_mappings
 
 #### fact purchase ####
 - Create a new file inside of the Sam's Subs directory called `fact_purchase.sql`
+- Used ChatGPT to debug.
 - Populate the code that we will use in this file below: 
 ```
 {{ config(
@@ -256,25 +304,25 @@ select
     e.employee_key,
     s.store_key,
     d.date_key,
-    om.order_method_key
-    ol. Order_Line_Price as unit_price,
-    ol.Order_Line_ Qty as qty,
-    (ol.Order_Line_ Qty * ol. Order_Line_Price) as dollars_sold
-from {{ source('subs_landing', 'order_line') }} ol
-inner join {{ source ('subs_landing', 'orders') }} o
-    on o.order_id = ol.order_id
+    om.order_method_key,
+    ol. Order_Line_Price unit_price,
+    ol.Order_Line_Qty qty,
+    (ol.Order_Line_Qty * ol. Order_Line_Price) dollars_sold
+from {{ source('subs_landing', 'Order_Line') }} ol
+inner join {{ source ('subs_landing', 'Orders') }} o
+    on o.Order_Number = ol.Order_Number
 left join {{ ref('subs_dim_product') }} p
-    on ol.product_id = p.product_id
+    on ol.Product_ID = p.product_id
 left join {{ ref('subs_dim_customer') }} c
-    on o.customer_id = c.customer_id
+    on o.Customer_ID = c.customer_id
 left join {{ ref('subs_dim_employee') }} e
-    on o.employee_id = e.employee_id
+    on o.Employee_ID = e.employee_id
 left join {{ ref('subs_dim_store') }} s
-    on s.store_id = o.store_id
+    on s.store_id = o.Store_ID
 left join  {{ ref('subs_dim_date') }} d
-    on d.date_key = o.order_date
-left join  {{ ref('subs_dim_order_method}} om
-    on o.order_method = om.order_method_type
+    on d.date_key = o.Order_Date
+left join  {{ ref('subs_dim_order_method')}} om
+    on o.Order_Method = om.order_method_type
 
 ```
 
@@ -338,7 +386,11 @@ models:
   - name: subs_dim_store
     description: "Store Information Dimension"  
   - name: fact_purchase
-    description: "Sam's Subs Sales Fact"
+    description: "Sam's Subs Purchases Fact"
+  - name: subs_dim_bread
+    description: "Inventory Fact Bread Type Dimmension"
+  - name: subs_dim_order_method
+    description: "Sam's Subs Order Method Description Dimmension"
     
 ```
 
@@ -352,11 +404,14 @@ models:
 )}}
 
 select
-    c.first_name as cust_fname,
-    c.last_name as cust_lname,
-    e.first_name as employee_fname,
-    e.last_name as employee_lname,
+    c.fname as cust_fname,
+    c.lname as cust_lname,
+    e.fname as employee_fname,
+    e.lname as employee_lname,
     s.store_name as store,
+    om.order_method_type,
+    p.product_calories,
+    p.product_name,
     d.date_id as date_of_purchase,
     f.quantity as quantity_purchased,
     f.unit_price as product_price,
@@ -377,6 +432,9 @@ left join  {{ ref('subs_dim_date') }} d
 
 left join  {{ ref('subs_dim_store') }} s
     on f.store_key = s.store_key
+
+left join {{ ref('subs_dim_order_method)' }} om
+    on f.order_method_key = om.order_method_key
 ```
 
 - In order to view lineage, the dbt power user extension must be installed. Click on the Lineage tab in vscode (down by the terminal on the bottom), if you are inside the sem_claims.sql model, you should be able to see lineage for that model. View the lineage for the other files in the model as well. 
