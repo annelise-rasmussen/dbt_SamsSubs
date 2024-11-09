@@ -363,9 +363,12 @@ left join {{ ref(subs_dim_bread) }} b
 
 #### schema yaml file ####
 - Create a new file inside the subs directory called `_schema_subs.yml`
-- This file contains metadata about the models you build. Hint: check out the exercise to help you create this file. 
+- This file contains metadata about the models you build. Hint: check out the exercise to help you create this file.
+- Generated based on my starting labels in ChatGPT
 - Populate the code that we will use in this file below: 
 ```
+
+
 version: 2
 
 models:
@@ -375,22 +378,51 @@ models:
       - name: employee_key
         description: "Dimension Surrogate Key"
         tests:
-        - unique
-        - not_null
+          - unique
+          - not_null
+
   - name: subs_dim_customer
     description: "Sam's Subs Customer Dimension"
+    columns:
+      - name: customer_key
+        description: "Dimension Surrogate Key"
+
   - name: subs_dim_date 
     description: "Sam's Subs Date Dimension"
+    columns:
+      - name: date_key
+        description: "Dimension Surrogate Key"
+
   - name: subs_dim_product
     description: "Sam's Subs Product Dimension"
+    columns:
+      - name: product_key
+        description: "Dimension Surrogate Key"
+
   - name: subs_dim_store
-    description: "Store Information Dimension"  
+    description: "Store Information Dimension"
+    columns:
+      - name: store_key
+        description: "Dimension Surrogate Key"
+
   - name: fact_purchase
     description: "Sam's Subs Purchases Fact"
+    columns:
+      - name: purchase_id
+        description: "Fact Table Surrogate Key"
+
   - name: subs_dim_bread
-    description: "Inventory Fact Bread Type Dimmension"
+    description: "Inventory Fact Bread Type Dimension"
+    columns:
+      - name: bread_key
+        description: "Dimension Surrogate Key"
+
   - name: subs_dim_order_method
-    description: "Sam's Subs Order Method Description Dimmension"
+    description: "Sam's Subs Order Method Description Dimension"
+    columns:
+      - name: order_method_key
+        description: "Dimension Surrogate Key"
+
     
 ```
 
@@ -398,7 +430,7 @@ models:
 - Create a model that can query from the data warehouse we just built and reference upstream models.
 
 ```
-{{ config(
+{{{ config(
     materialized = 'table',
     schema = 'dw_samssubs'
 )}}
@@ -408,12 +440,12 @@ select
     c.lname as cust_lname,
     e.fname as employee_fname,
     e.lname as employee_lname,
-    s.store_name as store,
+    concat(s.street,',', s.city) as store,
     om.order_method_type,
     p.product_calories,
     p.product_name,
     d.date_id as date_of_purchase,
-    f.quantity as quantity_purchased,
+    f.qty as quantity_purchased,
     f.unit_price as product_price,
     f.dollars_sold as total_dollars_spent
 from {{ ref('fact_purchase') }} f
@@ -433,7 +465,7 @@ left join  {{ ref('subs_dim_date') }} d
 left join  {{ ref('subs_dim_store') }} s
     on f.store_key = s.store_key
 
-left join {{ ref('subs_dim_order_method)' }} om
+left join {{ ref('subs_dim_order_method') }} om
     on f.order_method_key = om.order_method_key
 ```
 
