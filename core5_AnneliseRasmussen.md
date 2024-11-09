@@ -145,14 +145,11 @@ from cte_date
 )}}
 
 select 
-    employee_id as employee_key,
-    employee_id,
-    first_name,
-    last_name,
-    email,
-    position,
-    hire_date,
-    phone_number
+    Employee_ID as employee_key,
+    Employee_ID as employee_id,
+    Employee_First_Name as fname,
+    Employee_Last_name as lname,
+    Employee_Birthday as dob
 from {{ source('subs_landing', 'employee')}}
 ```
 
@@ -229,12 +226,9 @@ from {{ source('subs_landing', 'sandwich')}}
 )}}
 
 select 
-    store_id as store_key,
-    store_id,
-    store_name,
-    street,
-    city,
-    state
+    Order_Number as order_method_key,
+    Order_Number as order_id,
+    order_method as order_method_type
 from {{ source('subs_landing', 'orders')}}
 
 ```
@@ -256,9 +250,9 @@ select
     e.employee_key,
     s.store_key,
     d.date_key,
-    ol.unit_price,
-    ol.quantity,
-    (ol.unit_price * ol.quantity) as dollars_sold
+    ol. Order_Line_Price as unit_price,
+    ol.Order_Line_ Qty as qty,
+    (ol.Order_Line_ Qty * ol. Order_Line_Price) as dollars_sold
 from {{ source('subs_landing', 'order_line') }} ol
 inner join {{ source ('subs_landing', 'orders') }} o
     on o.order_id = ol.order_id
