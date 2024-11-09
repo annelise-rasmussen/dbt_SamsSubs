@@ -200,7 +200,8 @@ from {{ source('subs_landing', 'store')}}
 
   #### dim bread ####
 - Create a new file inside of the Sam's Subs directory called `subs_dim_bread.sql`
-- Populate the code that we will use in this file below: 
+- Populate the code that we will use in this file below:
+
 ```
 {{ config(
     materialized = 'table',
@@ -272,7 +273,8 @@ left join  {{ ref('subs_dim_date') }} d
 
 #### fact inventory ####
 - Create a new file inside of the Sam's Subs directory called `fact_inventory.sql`
-- Populate the code that we will use in this file below: 
+- Populate the code that we will use in this file below
+- inventory cannot be created yet. Bread dimension is created though: 
 ```
 {{ config(
     materialized = 'table',
