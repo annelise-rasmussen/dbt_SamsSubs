@@ -38,7 +38,7 @@ del.
 
 - Once Airbyte has run the connection test successfully, you will pick a destination, select `Pick a destination`.
 - Find and click on `Snowflake`
-    - Host: `https://sfedu02-etb90388.snowflakecomputing.com` 
+    - Host: `https://etb90388.snowflakecomputing.com` 
     - Role: `TRAINING_ROLE` 
     - Warehouse: `group2_WH` 
     - Database: `group2project` 
@@ -69,7 +69,7 @@ version: 2
 
 sources:
   - name: subs_landing
-    database: anneliserasmussen
+    database: group2project
     schema: samssubs
     tables:
     - name: Customer
@@ -104,7 +104,7 @@ select
     Customer_First_Name as fname,
     Customer_Last_Name as lname,
     Customer_Birthday as dob,
-    phone_number
+    Customer_Phone
     
 from {{ source('subs_landing', 'Customer')}}
 ```
@@ -151,7 +151,7 @@ select
     Employee_First_Name as fname,
     Employee_Last_name as lname,
     Employee_Birthday as dob
-from {{ source('subs_landing', 'employee')}}
+from {{ source('subs_landing', 'Employee')}}
 ```
 
 - Save the file and build the model. Go to Snowflake to see the newly created table! 
@@ -172,7 +172,7 @@ select
     Product_ID,
     Product_Name,
     Product_Calories
-from {{ source('subs_landing', 'product')}}
+from {{ source('subs_landing', 'Product')}}
 ```
 
 - Save the file and build the model. Go to Snowflake to see the newly created table!
