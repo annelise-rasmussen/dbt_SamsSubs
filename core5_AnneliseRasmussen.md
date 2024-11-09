@@ -64,6 +64,21 @@ del.
     - In this file we will add all of the sources for Sam's Subs' tables
 - Populate the code that we will use in this file below: 
 ```
+version: 2
+
+sources:
+  - name: subs_landing
+    database: anneliserasmussen
+    schema: samssubs
+    tables:
+    - name: Customer
+    - name: Employee
+    - name: Order_Line
+    - name: Orders
+    - name: Product
+    - name: Product_Type
+    - name: Store
+    - name: Sandwich
 
 ```
 
@@ -83,15 +98,14 @@ del.
 )}}
 
 select 
-    customer_id as customer_key,
-    customer_id,
-    first_name,
-    last_name,
-    email,
-    state,
+    Customer_ID as customer_key,
+    Customer_ID as customer_id,
+    Customer_First_Name as fname,
+    Customer_Last_Name as lname,
+    Customer_Birthday as dob,
     phone_number
     
-from {{ source('subs_landing', 'customer')}}
+from {{ source('subs_landing', 'Customer')}}
 ```
 
 - Save the file, after you have done that, you can go to your terminal and type `dbt run -m subs_dim_customer` to build the model.
