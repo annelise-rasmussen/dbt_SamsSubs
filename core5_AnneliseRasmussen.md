@@ -7,7 +7,7 @@ del.
 ## Background & Data ## 
 
 
-- Group's transaction data is stored in the 5360_Oliver database. Access this database by using the following credentials:
+- Group's transaction data is stored in the dw_group2 database. Access this database by using the following credentials:
      - Username: dw_group2
      - Password: password in canvas
 
@@ -60,8 +60,8 @@ del.
     - This will open a terminal in the directory of your project within VSCode
 - Right click on the models directory and create a new folder inside of it. (Be careful not to create it inside of the example directory.)
 - Call this new folder `samssubs`
-- Right click on oliver and create a new file. Name this file `_src_samssubs.yml`
-    - In this file we will add all of the sources for Oliver's tables
+- Right click on samssubs and create a new file. Name this file `_src_samssubs.yml`
+    - In this file we will add all of the sources for Sam's Subs' tables
 - Populate the code that we will use in this file below: 
 ```
 
@@ -74,7 +74,7 @@ del.
 
 
 #### dim customer ####
-- Create a new file inside of the oliver directory called `subs_dim_customer.sql`
+- Create a new file inside of the samssubs directory called `subs_dim_customer.sql`
 - Populate the code that we will use in this file below: 
 ```
 {{ config(
@@ -98,7 +98,7 @@ from {{ source('subs_landing', 'customer')}}
     - Go to Snowflake to see the newly created table!
 
 #### dim date ####
-- Create a new file inside of the oliver directory called `subs_dim_date.sql`
+- Create a new file inside of the Sam's Subs directory called `subs_dim_date.sql`
 - Populate the code that we will use in this file below: 
 ```
 {{ config(
@@ -122,7 +122,7 @@ from cte_date
 - Save the file, after you have done that, you can go to your terminal and type `dbt run -m subs_dim_date` to build the model. Go to Snowflake to see the newly created table!
 
 #### dim_employee ####
-- Create a new file inside of the oliver directory called `subs_dim_employee.sql`
+- Create a new file inside of the Sam's Subs directory called `subs_dim_employee.sql`
 - Populate the code that we will use in this file below: 
 ```
 {{ config(
@@ -145,7 +145,7 @@ from {{ source('subs_landing', 'employee')}}
 - Save the file and build the model. Go to Snowflake to see the newly created table! 
 
 #### dim product ####
-- Create a new file inside of the oliver directory called `subs_dim_product.sql`
+- Create a new file inside of the Sam's Subs directory called `subs_dim_product.sql`
 - Populate the code that we will use in this file below: 
 
 
@@ -167,7 +167,7 @@ from {{ source('subs_landing', 'product')}}
 
 
 #### dim store ####
-- Create a new file inside of the oliver directory called `subs_dim_store.sql`
+- Create a new file inside of the Sam's Subs directory called `subs_dim_store.sql`
 - Populate the code that we will use in this file below: 
 ```
 {{ config(
@@ -189,7 +189,7 @@ from {{ source('subs_landing', 'store')}}
 - Save the file and build the model. Go to Snowflake to see the newly created table!
 
   #### dim bread ####
-- Create a new file inside of the oliver directory called `subs_dim_bread.sql`
+- Create a new file inside of the Sam's Subs directory called `subs_dim_bread.sql`
 - Populate the code that we will use in this file below: 
 ```
 {{ config(
@@ -206,7 +206,7 @@ from {{ source('subs_landing', 'sandwich')}}
 - Save the file and build the model. Go to Snowflake to see the newly created table!
 
 #### dim order_method ####
-- Create a new file inside of the oliver directory called `subs_dim_order_method.sql`
+- Create a new file inside of the Sam's Subs directory called `subs_dim_order_method.sql`
 - Populate the code that we will use in this file below: 
 ```
 {{ config(
@@ -228,7 +228,7 @@ from {{ source('subs_landing', 'orders')}}
 - Save the file and build the model. Go to Snowflake to see the newly created table!
 
 #### fact purchase ####
-- Create a new file inside of the oliver directory called `fact_sales.sql`
+- Create a new file inside of the Sam's Subs directory called `fact_sales.sql`
 - Populate the code that we will use in this file below: 
 ```
 {{ config(
@@ -264,7 +264,7 @@ left join  {{ ref('subs_dim_date') }} d
 - Save the file and build the model. Go to Snowflake to see the newly created table!
 
 #### fact inventory ####
-- Create a new file inside of the oliver directory called `fact_sales.sql`
+- Create a new file inside of the Sam's Subs directory called `fact_inventory.sql`
 - Populate the code that we will use in this file below: 
 ```
 {{ config(
@@ -347,19 +347,19 @@ select
     f.dollars_sold as total_dollars_spent
 from {{ ref('fact_purchase') }} f
 
-left join {{ ref('oliver_dim_product') }} p
+left join {{ ref('subs_dim_product') }} p
     on f.product_key = p.product_key
 
-left join {{ ref('oliver_dim_customer') }} c
+left join {{ ref('subs_dim_customer') }} c
     on f.customer_key = c.customer_key
 
-left join {{ ref('oliver_dim_employee') }} e
+left join {{ ref('subs_dim_employee') }} e
     on f.employee_key = e.employee_key
     
-left join  {{ ref('oliver_dim_date') }} d
+left join  {{ ref('subs_dim_date') }} d
     on f.date_key = d.date_key
 
-left join  {{ ref('oliver_dim_store') }} s
+left join  {{ ref('subs_dim_store') }} s
     on f.store_key = s.store_key
 ```
 
