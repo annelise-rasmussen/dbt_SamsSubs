@@ -188,10 +188,10 @@ from {{ source('subs_landing', 'product')}}
 select 
     store_id as store_key,
     store_id,
-    store_address,
-    store_city,
-    store_state,
-    store_zip
+    Store_Address as street,
+    Store_City as city,
+    Store_State as state,
+    Store_Zip
 from {{ source('subs_landing', 'store')}}
 
 ```
@@ -227,7 +227,7 @@ from {{ source('subs_landing', 'sandwich')}}
 select 
     Order_Number as order_method_key,
     Order_Number as order_id,
-    order_method as order_method_type
+    Order_Method as order_method_type
 from {{ source('subs_landing', 'orders')}}
 
 ```
