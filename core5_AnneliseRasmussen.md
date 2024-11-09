@@ -13,7 +13,6 @@ del.
 
 
 ## Assignment ##
-- 
 ### Extract and Load (Airbyte) ###
 - Ensure that you are connected to the University VPN
 - Open the Docker application
@@ -167,10 +166,10 @@ from {{ source('subs_landing', 'employee')}}
 )}}
 
 select 
-    product_id as product_key,
-    product_id,
-    product_name,
-    description
+    Product_ID as product_key,
+    Product_ID,
+    Product_Name,
+    Product_Calories
 from {{ source('subs_landing', 'product')}}
 ```
 
@@ -189,10 +188,10 @@ from {{ source('subs_landing', 'product')}}
 select 
     store_id as store_key,
     store_id,
-    store_name,
-    street,
-    city,
-    state
+    store_address,
+    store_city,
+    store_state,
+    store_zip
 from {{ source('subs_landing', 'store')}}
 
 ```
